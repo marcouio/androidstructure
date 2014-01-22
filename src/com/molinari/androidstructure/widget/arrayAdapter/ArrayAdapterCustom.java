@@ -42,10 +42,10 @@ public abstract class ArrayAdapterCustom<T> extends ArrayAdapter<T>{
 			viewEsistente = false;
 		}
 		
-		Object viewMemento = cercaViewMemento(convertView, viewEsistente);
+		Object viewMemento = cercaViewMemento(convertView, viewEsistente, position);
 		
 		T item = getItem(position);
-		aggiornaViewMemento(item, viewMemento);
+		aggiornaViewMemento(item, viewMemento, position);
 		if(listener != null){
 			convertView.setOnClickListener(listener);
 		}
@@ -54,7 +54,7 @@ public abstract class ArrayAdapterCustom<T> extends ArrayAdapter<T>{
 	
 	}
 
-	private Object cercaViewMemento(View convertView, boolean viewEsistente) {
+	protected Object cercaViewMemento(View convertView, boolean viewEsistente, int position) {
 		Object viewMemento;
 		if (!viewEsistente) {
 
@@ -66,7 +66,7 @@ public abstract class ArrayAdapterCustom<T> extends ArrayAdapter<T>{
 		return viewMemento;
 	}
 	
-	public abstract void aggiornaViewMemento(T item, Object viewMemento);
+	public abstract void aggiornaViewMemento(T item, Object viewMemento, int position);
 
 	public abstract Object initViewMemento(View convertView);
 
