@@ -56,8 +56,10 @@ public class PreviewCamera extends SurfaceView implements
 
 	@Override
 	public void onPictureTaken(byte[] data, Camera camera) {
-		// TODO Auto-generated method stub
-
+		  // now that all the callbacks have been called it is safe to resume the preview
+        mCamera.startPreview();
+          //TODO       
+//        saveFile(data);
 	}
 
 	@Override
