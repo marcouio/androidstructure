@@ -1,14 +1,22 @@
 package com.molinari.androidstructure.hardware.camera;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 
+import android.R;
 import android.content.Context;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.hardware.Camera.PictureCallback;
+import android.hardware.Camera.PreviewCallback;
 import android.hardware.Camera.ShutterCallback;
 import android.hardware.Camera.Size;
+import android.os.Environment;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -27,18 +35,18 @@ import android.view.View;
  * 
  */
 public class PreviewCamera extends SurfaceView implements
-		SurfaceHolder.Callback, PictureCallback {
+		SurfaceHolder.Callback, PictureCallback, PreviewCallback {
 
 	private SurfaceHolder mHolder;
 	private Camera mCamera;
 	private RawCallback mRawCallback;
-
+	private String name = "photo.jpg";
+	
 	/**
 	 * @param context
 	 */
 	public PreviewCamera(Context context) {
 		super(context);
-
 		mHolder = getHolder();
 		mHolder.addCallback(this);
 		mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
@@ -48,8 +56,7 @@ public class PreviewCamera extends SurfaceView implements
 
 			@Override
 			public void onClick(View v) {
-				mCamera.takePicture(mRawCallback, mRawCallback, null,
-						PreviewCamera.this);
+				mCamera.takePicture(mRawCallback, mRawCallback, null, PreviewCamera.this);
 			}
 		});
 	}
@@ -58,8 +65,27 @@ public class PreviewCamera extends SurfaceView implements
 	public void onPictureTaken(byte[] data, Camera camera) {
 		  // now that all the callbacks have been called it is safe to resume the preview
         mCamera.startPreview();
-          //TODO       
-//        saveFile(data);
+               
+        saveFile(data);
+	}
+
+	private void saveFile(byte[] data) {
+		File file = new File(getContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES), getName());
+		try {
+	        // Very simple code to copy a picture from the application's
+	        // resource into the external file.  Note that this code does
+	        // no error checking, and assumes the picture is small (does not
+	        // try to copy it in chunks).  Note that if external storage is
+	        // not currently mounted this will silently fail.
+	        OutputStream os = new FileOutputStream(file);
+	        os.write(data);
+	        os.close();
+	    } catch (IOException e) {
+	        // Unable to create file, likely because external storage is
+	        // not currently mounted.
+	        Log.w("ExternalStorage", "Error writing " + file, e);
+	    }
+		
 	}
 
 	@Override
@@ -75,12 +101,16 @@ public class PreviewCamera extends SurfaceView implements
 
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
-		mCamera = Camera.open();
+		if(mCamera == null){
+			
+			mCamera = Camera.open();
+		}
 
 		configure(mCamera);
 
 		try {
 			mCamera.setPreviewDisplay(holder);
+			mCamera.setPreviewCallback(this);
 		} catch (IOException exception) {
 			closeCamera();
 		}
@@ -89,8 +119,7 @@ public class PreviewCamera extends SurfaceView implements
 
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
-		// TODO Auto-generated method stub
-
+		closeCamera();
 	}
 
 	/**
@@ -137,7 +166,7 @@ public class PreviewCamera extends SurfaceView implements
 		params.setPictureSize(size.width, size.height);
 
 		List<String> flashModes = params.getSupportedFlashModes();
-		if (flashModes.size() > 0)
+		if (flashModes != null && flashModes.size() > 0)
 			params.setFlashMode(Camera.Parameters.FLASH_MODE_AUTO);
 
 		// Action mode take pictures of fast moving objects
@@ -160,9 +189,24 @@ public class PreviewCamera extends SurfaceView implements
 	private void closeCamera() {
 		if (mCamera != null) {
 			mCamera.stopPreview();
+			mCamera.setPreviewCallback(null);
 			mCamera.release();
 			mCamera = null;
 		}
+	}
+
+	@Override
+	public void onPreviewFrame(byte[] data, Camera camera) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 }
