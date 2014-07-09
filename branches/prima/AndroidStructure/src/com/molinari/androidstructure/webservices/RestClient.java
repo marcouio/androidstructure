@@ -27,10 +27,7 @@ public class RestClient {
 	    try {
 	        // create connection
 	        URL urlToRequest = new URL(serviceUrl);
-	        urlConnection = (HttpURLConnection) 
-	            urlToRequest.openConnection();
-//	        urlConnection.setConnectTimeout(CONNECTION_TIMEOUT);
-//	        urlConnection.setReadTimeout(DATARETRIEVAL_TIMEOUT);
+	        urlConnection = (HttpURLConnection) urlToRequest.openConnection();
 	         
 	        // handle issues
 	        int statusCode = urlConnection.getResponseCode();
@@ -79,27 +76,4 @@ public class RestClient {
 	    // http://weblogs.java.net/blog/pat/archive/2004/10/stupid_scanner_1.html
 	    return new Scanner(inStream).useDelimiter("\\A").next();
 	}
-//	public List<MyItem> findAllItems() {
-//	    JSONObject serviceResult = RestClient.requestWebService(
-//	        "http://url/to/findAllService");
-//	     
-//	    List<MyItem> foundItems = new ArrayList<MyItem>(20);
-//	     
-//	    try {
-//	        JSONArray items = serviceResult.getJSONArray("items");
-//	         
-//	        for (int i = 0; i < items.length(); i++) {
-//	            JSONObject obj = items.getJSONObject(i);
-//	            foundItems.add(
-//	                    new Item(obj.getInt("id"), 
-//	                        obj.getString("name"), 
-//	                        obj.getBoolean("active")));
-//	        }
-//	         
-//	    } catch (JSONException e) {
-//	        // handle exception
-//	    }
-//	     
-//	    return foundItems;
-//	}
 }
